@@ -44,13 +44,15 @@ func (c Collection) Insert(ctx context.Context, docs interface{}) error {
 		return fmt.Errorf("Error: type of docs is invalid, %#v\n", docs)
 	}
 
-	v := reflect.ValueOf(docs)
+	documents := []interface{}{}
+	v := reflect.ValueOf(docs).Convert(reflect.SliceOf(c.docType))
 	for i := 0; i < v.Len(); i++ {
-		if _, err := c.InsertOne(ctx, v.Index(i).Convert(c.docType).Interface()); err != nil {
-			return err
-		}
+		documents = append(documents, v.Index(i).Interface())
 	}
 
+	if _, err := c.InsertMany(ctx, documents); err != nil {
+		return err
+	}
 	return nil
 }
 
