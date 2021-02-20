@@ -44,16 +44,11 @@ func (c Collection) Insert(ctx context.Context, docs interface{}) error {
 		return fmt.Errorf("Error: type of docs is invalid, %#v\n", docs)
 	}
 
-	switch reflect.TypeOf(docs).Kind() {
-	case reflect.Slice:
-		v := reflect.ValueOf(docs)
-		for i := 0; i < v.Len(); i++ {
-			if _, err := c.InsertOne(ctx, v.Index(i).Convert(c.docType).Interface()); err != nil {
-				return err
-			}
+	v := reflect.ValueOf(docs)
+	for i := 0; i < v.Len(); i++ {
+		if _, err := c.InsertOne(ctx, v.Index(i).Convert(c.docType).Interface()); err != nil {
+			return err
 		}
-	default:
-		return fmt.Errorf("Error: docs is not a slice, %#v\n", docs)
 	}
 
 	return nil
