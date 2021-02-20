@@ -14,9 +14,9 @@ import (
 const mongodbURI string = "mongodb://localhost:27017"
 
 type Document struct {
-	primitive.ObjectID `bson:"_id,omitempty"`
-	Field1             string `bson:"field1,omitempty"`
-	Field2             string `bson:"field2,omitempty"`
+	ID     primitive.ObjectID `bson:"_id,omitempty"`
+	Field1 string             `bson:"field1,omitempty"`
+	Field2 string             `bson:"field2,omitempty"`
 }
 
 type Aaa struct{}
