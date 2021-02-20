@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -44,22 +43,19 @@ func (c Collection) Insert(ctx context.Context, docs interface{}) error {
 	if reflect.TypeOf(docs) != reflect.SliceOf(c.docType) {
 		return fmt.Errorf("Error: type of docs is invalid, %#v\n", docs)
 	}
+
 	switch reflect.TypeOf(docs).Kind() {
 	case reflect.Slice:
 		v := reflect.ValueOf(docs)
 		for i := 0; i < v.Len(); i++ {
-			d, err := toBson(v.Index(i))
-			if err != nil {
-				return err
-			}
-			_, err = c.InsertOne(ctx, d)
-			if err != nil {
+			if _, err := c.InsertOne(ctx, v.Index(i).Convert(c.docType).Interface()); err != nil {
 				return err
 			}
 		}
 	default:
 		return fmt.Errorf("Error: docs is not a slice, %#v\n", docs)
 	}
+
 	return nil
 }
 
@@ -75,14 +71,4 @@ func (c Collection) Read(ctx context.Context, filter interface{}, docs interface
 		return err
 	}
 	return nil
-}
-
-func toBson(v interface{}) (*bson.D, error) {
-	var doc *bson.D
-	data, err := bson.Marshal(v)
-	if err != nil {
-		return doc, err
-	}
-	err = bson.Unmarshal(data, &doc)
-	return doc, err
 }

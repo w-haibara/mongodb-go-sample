@@ -39,8 +39,12 @@ func main() {
 	// write
 	if err := sample.Insert(ctx, []Document{
 		Document{
-			Field1: "alice",
-			Field2: "bob",
+			Field1: "111",
+			Field2: "aaa",
+		},
+		Document{
+			Field1: "111",
+			Field2: "bbb",
 		},
 	}); err != nil {
 		log.Panic(err)
@@ -48,7 +52,7 @@ func main() {
 
 	// read
 	var docs []Document
-	if err := sample.Read(ctx, bson.M{"field1": "alice"}, &docs); err != nil {
+	if err := sample.Read(ctx, bson.M{"field1": "111"}, &docs); err != nil {
 		log.Panic(err)
 	}
 
