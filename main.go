@@ -65,7 +65,7 @@ func main() {
 
 	// delete documents tha "Field2" is "bbb"
 	deleteDoc(ctx, sample, bson.M{"field2": "bbb"})
-	// delete all documents
+	// read all documents
 	log.Println("deleted: bbb")
 	readDoc(ctx, sample, docs, bson.M{})
 }
