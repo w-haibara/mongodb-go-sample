@@ -60,13 +60,13 @@ func main() {
 			{"$set", bson.D{{"field1", "xxx"}}},
 		})
 	// read documents that "Field1" is "xxx"
-	log.Println("updated: 111 --> xxx")
+	log.Println("updated: Field1:111 --> Field1:xxx")
 	readDoc(ctx, sample, docs, bson.M{"field1": "xxx"})
 
 	// delete documents tha "Field2" is "bbb"
 	deleteDoc(ctx, sample, bson.M{"field2": "bbb"})
 	// read all documents
-	log.Println("deleted: bbb")
+	log.Println("deleted: Field2:bbb")
 	readDoc(ctx, sample, docs, bson.M{})
 }
 
