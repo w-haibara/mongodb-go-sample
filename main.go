@@ -19,8 +19,6 @@ type Document struct {
 	Field2 string             `bson:"field2,omitempty"`
 }
 
-type Aaa struct{}
-
 func main() {
 	ctx, _ := context.WithTimeout(context.Background(), 1*time.Second)
 	client, err := db.NewClient(ctx, mongodbURI)
@@ -37,7 +35,7 @@ func main() {
 	sample := client.NewDB("db").NewCollection("sample", Document{})
 
 	// write
-	if err := sample.Insert(ctx, []Document{
+	insert(ctx, sample, []Document{
 		Document{
 			Field1: "111",
 			Field2: "aaa",
@@ -46,16 +44,34 @@ func main() {
 			Field1: "111",
 			Field2: "bbb",
 		},
-	}); err != nil {
-		log.Panic(err)
-	}
+	})
 
 	// read
 	var docs []Document
-	if err := sample.Read(ctx, bson.M{"field1": "111"}, &docs); err != nil {
+	read(ctx, sample, docs, bson.M{})
+
+	update(ctx, sample,
+		bson.M{"field1": "111"},
+		bson.D{
+			{"$set", bson.D{{"field1", "xxx"}}},
+		})
+
+	read(ctx, sample, docs, bson.M{"field1": "xxx"})
+}
+
+func insert(ctx context.Context, c db.Collection, docs []Document) {
+	if err := c.Insert(ctx, docs); err != nil {
 		log.Panic(err)
 	}
 
-	// print
+}
+func update(ctx context.Context, c db.Collection, filter, update interface{}) {
+	c.Update(ctx, filter, update)
+}
+
+func read(ctx context.Context, c db.Collection, docs []Document, filter interface{}) {
+	if err := c.Read(ctx, filter, &docs); err != nil {
+		log.Panic(err)
+	}
 	pp.Println(docs)
 }
