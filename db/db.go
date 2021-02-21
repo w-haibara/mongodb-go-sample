@@ -43,27 +43,16 @@ func (c Collection) Insert(ctx context.Context, docs interface{}) error {
 	if reflect.TypeOf(docs) != reflect.SliceOf(c.docType) {
 		return fmt.Errorf("Error: type of docs is invalid, %#v\n", docs)
 	}
-
 	documents := []interface{}{}
 	v := reflect.ValueOf(docs).Convert(reflect.SliceOf(c.docType))
 	for i := 0; i < v.Len(); i++ {
 		documents = append(documents, v.Index(i).Interface())
 	}
-
-	if _, err := c.InsertMany(ctx, documents); err != nil {
+	_, err := c.InsertMany(ctx, documents)
+	if err != nil {
 		return err
 	}
 	return nil
-}
-
-func (c Collection) Update(ctx context.Context, filter, update interface{}) error {
-	_, err := c.UpdateMany(ctx, filter, update)
-	return err
-}
-
-func (c Collection) Delete(ctx context.Context, filter interface{}) error {
-	_, err := c.DeleteMany(ctx, filter)
-	return err
 }
 
 func (c Collection) Read(ctx context.Context, filter interface{}, docs interface{}) error {
@@ -78,4 +67,13 @@ func (c Collection) Read(ctx context.Context, filter interface{}, docs interface
 		return err
 	}
 	return nil
+}
+func (c Collection) Update(ctx context.Context, filter, update interface{}) error {
+	_, err := c.UpdateMany(ctx, filter, update)
+	return err
+}
+
+func (c Collection) Delete(ctx context.Context, filter interface{}) error {
+	_, err := c.DeleteMany(ctx, filter)
+	return err
 }

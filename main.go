@@ -77,6 +77,12 @@ func insertDoc(ctx context.Context, c db.Collection, docs []Document) {
 
 }
 
+func readDoc(ctx context.Context, c db.Collection, docs []Document, filter interface{}) {
+	if err := c.Read(ctx, filter, &docs); err != nil {
+		log.Panic(err)
+	}
+	pp.Println(docs)
+}
 func updateDoc(ctx context.Context, c db.Collection, filter, update interface{}) {
 	if err := c.Update(ctx, filter, update); err != nil {
 		log.Panic(err)
@@ -87,11 +93,4 @@ func deleteDoc(ctx context.Context, c db.Collection, filter interface{}) {
 	if err := c.Delete(ctx, filter); err != nil {
 		log.Panic(err)
 	}
-}
-
-func readDoc(ctx context.Context, c db.Collection, docs []Document, filter interface{}) {
-	if err := c.Read(ctx, filter, &docs); err != nil {
-		log.Panic(err)
-	}
-	pp.Println(docs)
 }
