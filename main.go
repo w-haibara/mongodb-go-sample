@@ -20,20 +20,24 @@ type Document struct {
 }
 
 func main() {
+	// connect to DB
 	ctx, _ := context.WithTimeout(context.Background(), 1*time.Second)
 	client, err := db.NewClient(ctx, mongodbURI)
 	if err != nil {
 		log.Panic(err)
 	}
-
 	defer func() {
 		if err = client.DisconnectDB(ctx); err != nil {
 			log.Panic(err)
 		}
 	}()
 
+	// create new collection
 	sample := client.NewDB("db").NewCollection("sample", Document{})
+	// delete all documents in the collection
+	deleteDoc(ctx, sample, bson.M{})
 
+	// insert documents in the collection
 	insertDoc(ctx, sample, []Document{
 		Document{
 			Field1: "111",
@@ -44,20 +48,25 @@ func main() {
 			Field2: "bbb",
 		},
 	})
-
+	// read all documents in the collection
+	log.Println("inserted")
 	var docs []Document
 	readDoc(ctx, sample, docs, bson.M{})
 
+	// update documents in the collection
 	updateDoc(ctx, sample,
 		bson.M{"field1": "111"},
 		bson.D{
 			{"$set", bson.D{{"field1", "xxx"}}},
 		})
-
+	// read documents that "Field1" is "xxx"
+	log.Println("updated: 111 --> xxx")
 	readDoc(ctx, sample, docs, bson.M{"field1": "xxx"})
 
-	deleteDoc(ctx, sample, bson.M{"field1": "xxx"})
-
+	// delete documents tha "Field2" is "bbb"
+	deleteDoc(ctx, sample, bson.M{"field2": "bbb"})
+	// delete all documents
+	log.Println("deleted: bbb")
 	readDoc(ctx, sample, docs, bson.M{})
 }
 
@@ -69,11 +78,15 @@ func insertDoc(ctx context.Context, c db.Collection, docs []Document) {
 }
 
 func updateDoc(ctx context.Context, c db.Collection, filter, update interface{}) {
-	c.Update(ctx, filter, update)
+	if err := c.Update(ctx, filter, update); err != nil {
+		log.Panic(err)
+	}
 }
 
 func deleteDoc(ctx context.Context, c db.Collection, filter interface{}) {
-	c.Delete(ctx, filter)
+	if err := c.Delete(ctx, filter); err != nil {
+		log.Panic(err)
+	}
 }
 
 func readDoc(ctx context.Context, c db.Collection, docs []Document, filter interface{}) {
