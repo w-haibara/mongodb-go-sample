@@ -61,6 +61,11 @@ func (c Collection) Update(ctx context.Context, filter, update interface{}) erro
 	return err
 }
 
+func (c Collection) Delete(ctx context.Context, filter interface{}) error {
+	_, err := c.DeleteMany(ctx, filter)
+	return err
+}
+
 func (c Collection) Read(ctx context.Context, filter interface{}, docs interface{}) error {
 	if reflect.TypeOf(docs) != reflect.PtrTo(reflect.SliceOf(c.docType)) {
 		return fmt.Errorf("Error: type of docs is invalid, %#v\n", docs)

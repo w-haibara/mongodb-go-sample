@@ -34,8 +34,7 @@ func main() {
 
 	sample := client.NewDB("db").NewCollection("sample", Document{})
 
-	// write
-	insert(ctx, sample, []Document{
+	insertDoc(ctx, sample, []Document{
 		Document{
 			Field1: "111",
 			Field2: "aaa",
@@ -46,30 +45,38 @@ func main() {
 		},
 	})
 
-	// read
 	var docs []Document
-	read(ctx, sample, docs, bson.M{})
+	readDoc(ctx, sample, docs, bson.M{})
 
-	update(ctx, sample,
+	updateDoc(ctx, sample,
 		bson.M{"field1": "111"},
 		bson.D{
 			{"$set", bson.D{{"field1", "xxx"}}},
 		})
 
-	read(ctx, sample, docs, bson.M{"field1": "xxx"})
+	readDoc(ctx, sample, docs, bson.M{"field1": "xxx"})
+
+	deleteDoc(ctx, sample, bson.M{"field1": "xxx"})
+
+	readDoc(ctx, sample, docs, bson.M{})
 }
 
-func insert(ctx context.Context, c db.Collection, docs []Document) {
+func insertDoc(ctx context.Context, c db.Collection, docs []Document) {
 	if err := c.Insert(ctx, docs); err != nil {
 		log.Panic(err)
 	}
 
 }
-func update(ctx context.Context, c db.Collection, filter, update interface{}) {
+
+func updateDoc(ctx context.Context, c db.Collection, filter, update interface{}) {
 	c.Update(ctx, filter, update)
 }
 
-func read(ctx context.Context, c db.Collection, docs []Document, filter interface{}) {
+func deleteDoc(ctx context.Context, c db.Collection, filter interface{}) {
+	c.Delete(ctx, filter)
+}
+
+func readDoc(ctx context.Context, c db.Collection, docs []Document, filter interface{}) {
 	if err := c.Read(ctx, filter, &docs); err != nil {
 		log.Panic(err)
 	}
